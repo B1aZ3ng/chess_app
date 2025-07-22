@@ -9,6 +9,9 @@
     </head>
     <body>
         <header>
+            <h1>
+                Welcome to the <span id="app_title">Chess!</span>
+            </h1>
             <nav>
                 <a href='{{ url_for("main.index") }}'>Home</a>
                 {% if name %}
@@ -16,7 +19,6 @@
                 <form action="{{url_for('auth.logout')}}" method="post">
                     <input type="submit" name="submit" value="Log out">
                 </form>
-                {% elif %}
                 {% else %}
                 <form action="{{url_for('auth.login')}}" method="post">
                     <label for="username">User name</label>
@@ -30,9 +32,7 @@
                 </form>
                 {% endif %}
             </nav>
-            <h1>
-                Welcome to the <span id="app_title">Pokemon encyclopedia!</span>
-            </h1>
+            
         </header>
         <main>
             <section>
