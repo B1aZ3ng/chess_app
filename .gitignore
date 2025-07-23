@@ -279,3 +279,4 @@ pyrightconfig.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/python,flask,visualstudiocode
+/chess_app/chess_app/static/stockfish/*
