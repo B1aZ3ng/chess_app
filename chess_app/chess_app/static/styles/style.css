@@ -1,0 +1,15 @@
+.legend {
+    color: green;
+    --bs-table-color:green;
+}
+
+.notlegend {
+    color: red;
+    --bs-table-color: red;
+}
+
+:root {
+    --color-table: dodgerblue;
+    --justify-important: left;
+    --justify-normal: left;
+}
