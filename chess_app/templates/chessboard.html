@@ -27,38 +27,46 @@
 <script>
   
   var board = Chessboard('board', {
-  position: 'start',
-  pieceTheme: '/static/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
-  draggable: true,
-  onDrop: function (source, target, piece, newPos, oldPos, orientation) {
-  $.ajax({
-    type: 'POST',
-    url: '/game/move',
-    contentType: 'application/json',
-    data: JSON.stringify({ from: source, to: target }),
-    success: function (response) {
-      if (response.winner){
-        document.write(response.winner+" wins")
+    position: 'start',
+    pieceTheme: '/static/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
+    draggable: true,
+    onDrop: function (source, target, piece, newPos, oldPos, orientation) {
+      var promotion = null;
+
+      // Check for pawn promotion
+      if ((piece === 'wP' && target[1] === '8') || (piece === 'bP' && target[1] === '1')) {
+        promotion = prompt("Promote to (q, r, b, n)?", "q");
+        if (!promotion || !['q', 'r', 'b', 'n'].includes(promotion)) {
+          board.position(oldPos);
+          return 'snapback';
+        }
       }
-      if (response.status === 'ok') {
-        board.position(response.fen);
-      } else {
-        board.position(oldPos); // Snap back
-      }
-      console.log(response)
-      console.log(response.status)
-      console.log(response.status === 'ok')
-    },
-    error: function () {
-      board.position(oldPos); // Snap back on error
+
+      $.ajax({
+        type: 'POST',
+        url: '/game/move',
+        contentType: 'application/json',
+        data: JSON.stringify({ from: source, to: target, promotion: promotion }),
+        success: function (response) {
+          if (response.status === 'ok') {
+            board.position(response.fen);
+            if (response.winner != 'none') {
+              document.getElementById("outcome").innerHTML = response.winner + " wins!";
+            }
+          } else {
+            board.position(oldPos); // Snap back
+          }
+        },
+        error: function () {
+          board.position(oldPos); // Snap back on error
+        }
+      });
+
+      return 'snapback'; // Always handle updates manually
     }
   });
-  return 'snapback';  // Always handle updates manually
-}
-  
-});
 
 </script>
-
+<div class="outcome" id="outcome"> </div>
 </body>
 </html>

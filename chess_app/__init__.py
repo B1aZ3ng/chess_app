@@ -4,7 +4,7 @@ from flask import Flask
 def create_app():
     inner_app = Flask(__name__)
 
-    from chess_app.routes import main
+    from chess_app.main import main
     from chess_app.auth import auth
     from chess_app.chessGame import game
 
