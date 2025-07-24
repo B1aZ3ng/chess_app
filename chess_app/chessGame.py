@@ -6,16 +6,23 @@ game = Blueprint("game", __name__, url_prefix="/game")
 board = chesslib.Board()
 engine = Stockfish(path="/opt/homebrew/bin/stockfish")
 engine.set_skill_level(1)
+game.level = 20
+@game.post('/')
+def postLevel():
+    print("hi")
+    data = dict(request.form)
+    return start(int(data['level']))
+
 @game.route('/')
-def index():
+def start(level):
+    engine.set_skill_level(level)
     board.reset()
     engine.set_position([])
-    return render_template('chessboard.html')
     
+    return render_template('chessboard.html')
 
 @game.post('/move')
 def move():
-    LEVEL = 1
     data = request.get_json()
     source = data.get("from")
     target = data.get("to")
@@ -40,7 +47,7 @@ def move():
             if checkmate(board):
                 return checkmate(board)
 
-            engineMove = getEngineMove(LEVEL,board.fen)
+            engineMove = getEngineMove(game.level,board.fen)
             print(engineMove)
             board.push(engineMove)
             print(board.outcome(),board.fen())

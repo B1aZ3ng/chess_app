@@ -1,0 +1,12 @@
+{% extends 'index.html' %}
+{% block content %}
+<form method="post" action="{{ url_for('game.postLevel') }}">
+    <label for="level">Difficulty</label>
+    <select name="level">
+        {% for i in range(1,21) %}
+        <option value={{i}}>{{i}}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="Search" id="submitBtn">
+</form>
+{% endblock content %}
