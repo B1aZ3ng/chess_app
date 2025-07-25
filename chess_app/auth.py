@@ -30,21 +30,21 @@ user = User()
 def signup():
     form = SignupForm()
     if form.validate_on_submit():
-        email = request.form.get("email")
         username = request.form.get("username")
         password = request.form.get("password")
-        user = User.query.filter_by(email=email).first()
-        if user:
-            flash("User already exists")
-            return redirect(url_for("auth.signup"))
-        new_user = User(
-            email=email,
-            username=username,
-            password=generate_password_hash(password),
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for("auth.login"))
+        passwordAgain = request.form.get("passwordAgain")
+        if password == passwordAgain:
+            user = User.query.filter_by(username=username).first()
+            if user:
+                flash("User already exists")
+                return redirect(url_for("auth.signup"))
+            new_user = User(
+                username=username,
+                password=generate_password_hash(password),
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for("auth.login"))
     return render_template("signup.html", form=form)
 
 
@@ -52,16 +52,16 @@ def signup():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        email = request.form.get("email")
+        username = request.form.get("username")
         password = request.form.get("password")
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(username=username).first()
         if not user or not check_password_hash(user.password, password):
             flash("Please check your login details and try again.")
             return redirect(url_for("auth.login"))
 
-        login_user(user)
-        flash(f"Welcome, {user.username}")
-        return redirect(url_for("main.index"))
+            login_user(user)
+            flash(f"Welcome, {user.username}")
+            return redirect(url_for("main.index"))
     return render_template("login.html", form=form)
 
 

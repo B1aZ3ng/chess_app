@@ -13,3 +13,6 @@
     --justify-important: left;
     --justify-normal: left;
 }
+.container {
+   max-width: 30% !important;/*Set your own width %; */
+}

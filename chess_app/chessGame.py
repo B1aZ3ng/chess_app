@@ -1,6 +1,8 @@
 from flask import Blueprint, request ,render_template,jsonify,url_for
 import chess as chesslib
 from stockfish import Stockfish
+from datetime import datetime
+
 
 game = Blueprint("game", __name__, url_prefix="/game")
 board = chesslib.Board()
@@ -82,3 +84,8 @@ def getEngineMove(level,fen):
     engine.set_fen_position(fen())
     move = chesslib.Move.from_uci(engine.get_best_move())
     return move
+
+
+def get_time():
+    current_time = datetime.now()
+    formatted_time = current_time.strftime("%H:%M:%S") 

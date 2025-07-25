@@ -39,9 +39,4 @@ def create_app():
         with app.app_context():
             db.create_all()
         
-    with sqlite3.connect(f"instance/{app.config.get('DB_NAME')}.sqlite3") as connection:
-        connection.row_factory = sqlite3.Row
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM college ORDER BY username;")
-    app.data = cursor.fetchall()
     return app

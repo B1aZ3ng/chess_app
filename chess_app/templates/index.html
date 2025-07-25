@@ -11,29 +11,34 @@
     </head>
     <body>
         <header>
-            <nav>
-                <a href='{{ url_for("main.index") }}'>C🧭llege Navigator</a>
+            <nav class="navbar navbar-expand-sm navbar-light bg-light">
+                
                 {% for category, msg in get_flashed_messages(with_categories=true) %}
                     <h3 class="{{ category }}">{{ msg }}</h3>
                 {% endfor %}
-                <ul>
-                    {% if current_user.is_authenticated %}
-                        <li>Hi {{ current_user.name }}!</li>
-                        <li>
-                            <a href='{{ url_for("main.profile") }}'>Profile</a>
-                        </li>
-                        <li>
-                            <a href='{{ url_for("auth.logout") }}'>Log out</a>
-                        </li>
-                    {% else %}
-                        <li>
-                            <a href='{{ url_for("auth.signup") }}'>Sign up</a>
-                        </li>
-                        <li>
-                            <a href='{{ url_for("auth.login") }}'>Log in</a>
-                        </li>
-                    {% endif %}
-                </ul>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                                <a href='{{ url_for("main.index") }}' class="nav-link">Home</a>
+                            </li>
+                        {% if current_user.is_authenticated %}
+                            <!-- <li>Hi {{ current_user.name }}!</li> -->
+                            <li class="nav-item active">
+                                <a class="nav-link" href='{{ url_for("main.profile") }}'>Profile</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href='{{ url_for("auth.logout") }}'>Log out</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item active">
+                                <a class="nav-link" href='{{ url_for("auth.signup") }}'>Sign up</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href='{{ url_for("auth.login") }}'>Log in</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
             </nav>
             <h1>
                 <span id="app_title">Chess!</span>
