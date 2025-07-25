@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from flask import Blueprint, abort, current_app, render_template, request, session, redirect,url_for
-
+from flask_login import login_required
 main = Blueprint("main", __name__, url_prefix="/")
 
 
@@ -15,3 +15,7 @@ def startGame():
     return "hi"
 
 
+@main.get("/profile")
+@login_required
+def profile():
+    return render_template("index.html")
