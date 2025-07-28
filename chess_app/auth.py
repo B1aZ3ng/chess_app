@@ -13,6 +13,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    session,
 )
 from flask_login import login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -28,6 +29,7 @@ user = User()
 
 @auth.route("/signup", methods=["GET", "POST"])
 def signup():
+    session ['board'] = session.get('board', None)
     form = SignupForm()
     if form.validate_on_submit():
         username = request.form.get("username")
@@ -60,6 +62,7 @@ def login():
             return redirect(url_for("auth.login"))
         else:
             login_user(user)
+            session['username'] = user.username
             flash(f"Welcome, {user.username}")
             return redirect(url_for("main.index"))
     return render_template("login.html", form=form)

@@ -1,107 +1,95 @@
-from flask import Blueprint, request ,render_template,jsonify,url_for
-import chess as chesslib
+from flask import Blueprint, request, render_template, jsonify, session, redirect, url_for
+from flask_login import login_required
+from werkzeug.utils import secure_filename    
+from flask_socketio import emit, join_room
 from stockfish import Stockfish
 from datetime import datetime
-from flask_socketio import emit, join_room
+import chess as chesslib
 from chess_app import socketio
 
-
 game = Blueprint("game", __name__, url_prefix="/game")
-board = chesslib.Board()
-engine = Stockfish(path="/opt/homebrew/bin/stockfish")
-engine.set_skill_level(1)
+
+boards = {}  # room_id -> { 'board': chess.Board, 'engine': Stockfish }
 game.level = 20
+
+def get_room_state(room):
+    if room not in boards:
+        board = chesslib.Board()
+        engine = Stockfish(path="/opt/homebrew/bin/stockfish")
+        engine.set_skill_level(game.level)
+        boards[room] = {"board": board, "engine": engine}
+    return boards[room]["board"], boards[room]["engine"]
+
 @socketio.on('join')
 def handle_join(data):
-    room = data['room']
+    room = str(data['room'])
+    username = data.get("username", "Guest")
     join_room(room)
-    emit('status', {'msg': f"{data['username']} joined {room}"}, room=room)
+    board, _ = get_room_state(room)
 
+    emit('status', {'msg': f"{username} joined {room}"}, room=room)
+    emit('fen', {'fen': board.fen()}, room=room)
 
 @socketio.on('move')
-def handle_move(data):
-    room = data['room']
-    move = data['move']
-    # Add your move logic here
-    emit('move', {'move': move}, room=room)
-    
-@game.post('/')
-def postLevel():
-    print("hi")
-    data = dict(request.form)
-    return start(int(data['level']))
-
-@game.route('/')
-def start(level):
-    engine.set_skill_level(level)
-    board.reset()
-    engine.set_position([])
-    
-    return render_template('chessboard.html')
-
-@game.post('/move')
-def move():
-    data = request.get_json()
+def socket_move(data):
+    room = str(data.get("room"))
     source = data.get("from")
     target = data.get("to")
-    promotion = data.get("promotion")
-    if not source or not target:
-        return jsonify({"status": "error", "message": "Invalid move input"})
+    promotion = data.get("promotion", "")
 
-    try:
-        if promotion:
-            move = chesslib.Move.from_uci(source + target + promotion)
-        else:
-            move = chesslib.Move.from_uci(source + target)
-        move = chesslib.Move.from_uci(source + target)
-        if board.outcome() is not None:
-            if board.outcome() == chesslib.WHITE:
-                return jsonify({"winner":"white"})
-            if board.outcome() == chesslib.BLACK:
-                return jsonify({"winner":"black"})
-        if move in board.legal_moves:
-        #    print(type(move))
-            board.push(move)
-            if checkmate(board):
-                return checkmate(board)
+    if not room or not source or not target:
+        emit('error', {'msg': 'Invalid move input'}, room=room)
+        return
 
-            engineMove = getEngineMove(game.level,board.fen)
-            print(engineMove)
-            board.push(engineMove)
-            print(board.outcome(),board.fen())
-            if checkmate(board):
-                return checkmate(board)
-         #   print('hi')
-            return jsonify({"status": "ok", "fen": board.fen(),"winner":"none"})
-        else:
-            return jsonify({"status": "illegal","winner":"none"})
+    board, engine = get_room_state(room)
+    uci = source + target + promotion
+    move = chesslib.Move.from_uci(uci)
 
-        
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    if move in board.legal_moves:
+        board.push(move)
+        emit('valid',{
+            'fen': board.fen(),
+            'move': uci,
+            'by': 'player'
+        },
+             room=room)
+        if board.is_game_over():
+            outcome = board.outcome()
+            winner = outcome.winner
+            emit('game_over', {
+                'fen': board.fen(),
+                'winner': "draw" if winner is None else ("white" if winner else "black")
+            }, room=room)
+            return
 
-def checkmate(board):
-    outcome = board.outcome()
-    print(outcome is not None)
-    if outcome is not None:
-        print(outcome)
-        print("winner",outcome.winner)
-        print("hi")
-        if outcome.winner == chesslib.WHITE:
-            return jsonify({"status": "ok", "fen": board.fen(),"winner":"white"})
-        if outcome.winner == chesslib.BLACK:
-            return jsonify({"status": "ok", "fen": board.fen(),"winner":"black"})
-        else:
-            return jsonify({"status": "ok", "fen": board.fen(),"winner":"someone"})
-    return None
+        # Engine move
+        engine.set_fen_position(board.fen())
+        engine_move_uci = engine.get_best_move()
+        engine_move = chesslib.Move.from_uci(engine_move_uci)
 
-def getEngineMove(level,fen):
-    engine.set_skill_level(level)
-    engine.set_fen_position(fen())
-    move = chesslib.Move.from_uci(engine.get_best_move())
-    return move
+        if engine_move in board.legal_moves:
+            board.push(engine_move)
+
+        emit('move', {
+            'fen': board.fen(),
+            'move': engine_move_uci,
+            'by': 'engine'
+        }, room=room)
+    else:
+        emit('invalid', {'msg': 'Illegal move'}, room=room)
 
 
-def get_time():
-    current_time = datetime.now()
-    formatted_time = current_time.strftime("%H:%M:%S") 
+
+@game.post('/')
+def postLevel():
+    level = int(request.form.get('level', game.level))
+    game.level = level
+    return redirect(url_for('game.start', room=session.get('room', 'default')))
+
+@game.route('/<room>')
+def start(room):
+    session['room'] = room
+    board, engine = get_room_state(room)
+    engine.set_skill_level(game.level)
+    return render_template('chessboard.html', username=session.get('username', 'Guest'), room=room, board=board.fen())
+

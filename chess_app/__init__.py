@@ -1,23 +1,37 @@
-import pathlib
-import sqlite3
-from flask_socketio import SocketIO
-import dotenv
 from flask import Flask
-from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_socketio import SocketIO
 from sqlalchemy.orm import DeclarativeBase
-login_manager = LoginManager()
-login_manager.login_view = "auth.login"
+import dotenv
+import pathlib
 
-
+# ---- Extensions (Globally Initialized) ----
 class Base(DeclarativeBase):
     pass
 
-
 db = SQLAlchemy(model_class=Base)
+login_manager = LoginManager()
+socketio = SocketIO()
+
+# ---- App Factory ----
 def create_app():
     app = Flask(__name__)
 
+    # Load environment variables
+    dotenv.load_dotenv(".flaskenv")
+    app.config.from_prefixed_env()
+
+    # Set database URI
+    db_name = app.config.get("DB_NAME", "default")
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_name}.sqlite3"
+
+    # Initialize extensions with app
+    db.init_app(app)
+    login_manager.init_app(app)
+    socketio.init_app(app)
+
+    # Register blueprints
     from chess_app.main import main
     from chess_app.auth import auth
     from chess_app.chessGame import game
@@ -26,22 +40,10 @@ def create_app():
     app.register_blueprint(auth)
     app.register_blueprint(game)
 
-    from chess_app.auth import auth
-    #from chess_app.routes import main
-
-    dotenv.load_dotenv(".flaskenv")
-    app.config.from_prefixed_env()
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{app.config.get('DB_NAME')}.sqlite3"
-    login_manager.init_app(app)
-    db.init_app(app)
-    socketio = SocketIO(app)
-    if not pathlib.Path(app.config.get("SQLALCHEMY_DATABASE_URI")).exists():
+    # Create DB if missing
+    db_path = pathlib.Path(f"{db_name}.sqlite3")
+    if not db_path.exists():
         with app.app_context():
             db.create_all()
-        
-    return app,socketio
 
-app, socketio = create_app()
-
-if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    return app

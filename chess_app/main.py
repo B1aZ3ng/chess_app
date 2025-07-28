@@ -7,6 +7,7 @@ main = Blueprint("main", __name__, url_prefix="/")
 
 @main.get("/")
 def index():
+    session ['board'] = session.get('board', None)
     return render_template("startGame.html")
     
 
