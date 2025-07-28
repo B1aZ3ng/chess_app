@@ -1,6 +1,6 @@
 import pathlib
 import sqlite3
-
+from flask_socketio import SocketIO
 import dotenv
 from flask import Flask
 from flask_login import LoginManager
@@ -34,9 +34,14 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{app.config.get('DB_NAME')}.sqlite3"
     login_manager.init_app(app)
     db.init_app(app)
-
+    socketio = SocketIO(app)
     if not pathlib.Path(app.config.get("SQLALCHEMY_DATABASE_URI")).exists():
         with app.app_context():
             db.create_all()
         
-    return app
+    return app,socketio
+
+app, socketio = create_app()
+
+if __name__ == "__main__":
+    socketio.run(app, debug=True)

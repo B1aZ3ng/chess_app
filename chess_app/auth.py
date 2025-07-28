@@ -58,7 +58,7 @@ def login():
         if not user or not check_password_hash(user.password, password):
             flash("Please check your login details and try again.")
             return redirect(url_for("auth.login"))
-
+        else:
             login_user(user)
             flash(f"Welcome, {user.username}")
             return redirect(url_for("main.index"))

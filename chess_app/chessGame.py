@@ -2,6 +2,8 @@ from flask import Blueprint, request ,render_template,jsonify,url_for
 import chess as chesslib
 from stockfish import Stockfish
 from datetime import datetime
+from flask_socketio import emit, join_room
+from chess_app import socketio
 
 
 game = Blueprint("game", __name__, url_prefix="/game")
@@ -9,6 +11,20 @@ board = chesslib.Board()
 engine = Stockfish(path="/opt/homebrew/bin/stockfish")
 engine.set_skill_level(1)
 game.level = 20
+@socketio.on('join')
+def handle_join(data):
+    room = data['room']
+    join_room(room)
+    emit('status', {'msg': f"{data['username']} joined {room}"}, room=room)
+
+
+@socketio.on('move')
+def handle_move(data):
+    room = data['room']
+    move = data['move']
+    # Add your move logic here
+    emit('move', {'move': move}, room=room)
+    
 @game.post('/')
 def postLevel():
     print("hi")
