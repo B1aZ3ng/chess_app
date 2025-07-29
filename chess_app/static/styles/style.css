@@ -16,3 +16,27 @@
 .container {
    max-width: 30% !important;/*Set your own width %; */
 }
+body {
+  background: #b58863;
+}
+/* linear-gradient(135deg, #b79471, */
+.btn-chess:hover {
+      background-color: #f0d9b5;
+      color: #000;
+ }
+.navbar {
+        background-color: #333;
+}
+
+
+.navbar-brand {
+      color: #f0d9b5 !important;
+      font-weight: bold;
+      font-size: 1.5rem;
+}
+
+.btn-chess {
+      background-color: #b58863;
+      color: white;
+      transition: 0.3s;
+}

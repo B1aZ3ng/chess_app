@@ -11,37 +11,37 @@
     </head>
     <body>
         <header>
-            <nav class="navbar navbar-expand-sm navbar-light bg-light">
-                
-                {% for category, msg in get_flashed_messages(with_categories=true) %}
-                    <h3 class="{{ category }}">{{ msg }}</h3>
-                {% endfor %}
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav mr-auto">
-                            <li class="nav-item active">
-                                <a href='{{ url_for("main.index") }}' class="nav-link">Home</a>
-                            </li>
-                        {% if current_user.is_authenticated %}
-                            <!-- <li>Hi {{ current_user.name }}!</li> -->
-                            <li class="nav-item active">
-                                <a class="nav-link" href='{{ url_for("main.profile") }}'>Profile</a>
-                            </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href='{{ url_for("auth.logout") }}'>Log out</a>
-                            </li>
-                        {% else %}
-                            <li class="nav-item active">
-                                <a class="nav-link" href='{{ url_for("auth.signup") }}'>Sign up</a>
-                            </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href='{{ url_for("auth.login") }}'>Log in</a>
-                            </li>
-                        {% endif %}
-                    </ul>
+            <nav class="navbar navbar-expand-lg">
+                <div class="container">
+                    <a class="navbar-brand" href="#"><i class="fas fa-chess-knight"></i> Chess</a>
+                    {% for category, msg in get_flashed_messages(with_categories=true) %}
+                        <h3 class="{{ category }}">{{ msg }}</h3>
+                    {% endfor %}
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                                <li class="nav-item active">
+                                    <a href='{{ url_for("main.index") }}' class="btn btn-outline-light me-2">Home</a>
+                                </li>
+                            {% if current_user.is_authenticated %}
+                                
+                                <li class="nav-item active">
+                                    <a href='{{ url_for("main.profile") }}' class="btn btn-outline-light me-2">Profile</a>
+                                </li>
+                                <li class="nav-item active">
+                                    <a href='{{ url_for("auth.logout") }}' class="btn btn-outline-light me-2">Log out</a>
+                                </li>
+                            {% else %}
+                                <div class="ms-auto">
+                                    <a href="{{ url_for('auth.signup') }}" class="btn btn-outline-light me-2" >Sign Up</a>
+                                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light me-2">Log In</a>
+                                </div>
+                            {% endif %}
+                        </ul>
+                    </div>
                 </div>
             </nav>
             <h1>
-                <span id="app_title">Chess!</span>
+                <span id="app_title" class = "text-dark mr-2">Chess!</span>
             </h1>
         </header>
         <main>
@@ -53,3 +53,19 @@
         </main>
     </body>
 </html>
+
+
+
+
+
+
+
+<!-- <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#"><i class="fas fa-chess-knight"></i> Chess</a>
+      <div class="ms-auto">
+        <a href="#" class="btn btn-outline-light me-2">Sign Up</a>
+        <a href="#" class="btn btn-light">Log In</a>
+      </div>
+    </div>
+  </nav> -->

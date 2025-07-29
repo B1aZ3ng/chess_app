@@ -29,7 +29,7 @@ user = User()
 
 @auth.route("/signup", methods=["GET", "POST"])
 def signup():
-    session ['board'] = session.get('board', None)
+  
     form = SignupForm()
     if form.validate_on_submit():
         username = request.form.get("username")
