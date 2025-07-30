@@ -28,7 +28,7 @@
 <script>
   const room = "{{ room }}";
   const username = "{{ username }}";
-
+  
   const socket = io();
 
   let board = Chessboard('board', {
@@ -66,6 +66,7 @@
   socket.on('valid', function (data) {
     board.position(data.fen)
   });
+  
   function onDrop(source, target, piece, newPos, oldPos, orientation) {
     let promotion = "";
 

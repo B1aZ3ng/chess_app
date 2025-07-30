@@ -26,3 +26,4 @@ class ChessGame(db.Model):
     playerB: Mapped[str]
     gameData: Mapped[str]
     outcome: Mapped[str]
+    #outcomeType: Mapped[str]

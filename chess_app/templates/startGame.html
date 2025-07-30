@@ -3,16 +3,8 @@
 <form method="post" action="{{ url_for('game.postLevel') }}">
     <div class="card text-center">
         <div class="card-header">
-            <ul class="nav nav-pills card-header-pills">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="true" href="#">Single Player</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" aria-current = "true" href = "#">Multiplayer</a>
-                </li>
-            </ul>
 
-            <label for="level" class = "form-group">Difficulty</label>
+            <label for="level" class = "form-group"><strong>Difficulty</strong></label>
             <div class="card-body">
                 <select name="level" class = "custom-select my-1 mr-sm-2">
                 {% for i in range(1,21) %}
@@ -20,13 +12,17 @@
                 {% endfor %}
             </select>
             </div>
+            <label for="startColour" class ="form-group"><strong>Starting Colour</strong></label>
+            <div class="card-body">
+                <select name="startColour" class = "custom-select my-1 mr-sm-2">
+                <option value="micah">White</option>
+                <option value="shelby">Black</option>
+                <option value="brad">Random</option>
+            </select>
+            </div>
         </div>
+        <input type="submit" value="Start Game" class="btn-outline-light mx-auto" id="submitBtn">
     </div>
-    <input type="submit" value="Start Game" class="btn btn-primary btn-lg btn-block mt-3" id="submitBtn">
-    <i class="fas fa-chess"></i>
+    
 </form>
 {% endblock content %}
-
-<button class="btn btn-success btn-lg btn-block mt-3">
-  <i class="fas fa-chess"></i> Start Game
-</button>

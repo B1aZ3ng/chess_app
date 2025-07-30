@@ -9,9 +9,9 @@
                 <strong>Date:</strong> {{ game.time }}<br>
                 {% if game.playerW == current_user.username %}
                     <strong>Outcome:</strong> 
-                    {% if game.outcome == "white" %}
+                    {% if game.outcome[:5] == "white" %}
                         Win
-                    {% elif game.outcome == "black" %}
+                    {% elif game.outcome[:5] == "black" %}
                         Loss
                     {% else %}
                         Draw
@@ -21,9 +21,9 @@
                 {% else %}
                     
                     <strong>Outcome:</strong> 
-                    {% if game.outcome == "black" %}
+                    {% if game.outcome[:5] == "black" %}
                         Win
-                    {% elif game.outcome == "white" %}
+                    {% elif game.outcome[:5] == "white" %}
                         Loss
                     {% else %}
                         Draw

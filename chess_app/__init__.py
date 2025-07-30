@@ -6,6 +6,9 @@ from sqlalchemy.orm import DeclarativeBase
 import dotenv
 import pathlib
 from flask_apscheduler import APScheduler
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 scheduler = APScheduler()
 # ---- Extensions (Globally Initialized) ----
