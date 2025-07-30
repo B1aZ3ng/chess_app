@@ -5,7 +5,9 @@ from flask_socketio import SocketIO
 from sqlalchemy.orm import DeclarativeBase
 import dotenv
 import pathlib
+from flask_apscheduler import APScheduler
 
+scheduler = APScheduler()
 # ---- Extensions (Globally Initialized) ----
 class Base(DeclarativeBase):
     pass
@@ -30,6 +32,8 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     socketio.init_app(app)
+    scheduler.init_app(app)
+    scheduler.start()
 
     # Register blueprints
     from chess_app.main import main

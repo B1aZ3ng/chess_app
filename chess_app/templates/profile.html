@@ -1,0 +1,46 @@
+{% extends 'index.html' %}
+{% block content %}
+{% if current_user.is_authenticated %}
+    <h1>Game History for {{ current_user.username }}</h1>
+    {% if games %}
+        <ul>
+        {% for game in games %}
+            <li>
+                <strong>Date:</strong> {{ game.time }}<br>
+                {% if game.playerW == current_user.username %}
+                    <strong>Outcome:</strong> 
+                    {% if game.outcome == "white" %}
+                        Win
+                    {% elif game.outcome == "black" %}
+                        Loss
+                    {% else %}
+                        Draw
+                    {% endif %}
+                    <br>
+                    <strong>Opponent:</strong> {{ game.playerB if game.playerB != "NULL" else "Computer"}}
+                {% else %}
+                    
+                    <strong>Outcome:</strong> 
+                    {% if game.outcome == "black" %}
+                        Win
+                    {% elif game.outcome == "white" %}
+                        Loss
+                    {% else %}
+                        Draw
+                    {% endif %}
+                    <br>
+                    <strong>Opponent:</strong> {{ game.playerW if game.playerW != "NULL" else "Computer"}}
+                {% endif %}
+                
+                <br>
+                <strong>Moves:</strong> {{ game.gameData }}
+            </li>
+            <hr>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No games found.</p>
+    {% endif %}
+{% endif %}
+{% endblock content %}
+
