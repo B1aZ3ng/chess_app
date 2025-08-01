@@ -55,12 +55,18 @@ def socket_move(data):
     if current_user.is_authenticated:
         username = current_user.username 
     else:
-        username = "Guest"
+        return
     
     moveLen = len(boards[room]["board"].move_stack)
+    print(username, "attempting to move in room", room, "Move length:", moveLen)
+    print   
+    if not (username == boards[room]["playerW"] and moveLen%2 == 0): 
+        if not (username == boards[room]["playerB"] and moveLen%2 == 1): 
+            print ("Invalid move attempt by", username, "in room", room)
 
-    # if not (username == boards[room]["PlayerW"] and moveLen%2 == 0): return
-    # if not (username == boards[room]["PlayerB"] and moveLen%2 == 1): return
+            return
+        
+    
     
     boards[room]["lastMoveTime"] = time.time()
     print("room", room)
