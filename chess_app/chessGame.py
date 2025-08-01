@@ -58,18 +58,13 @@ def socket_move(data):
         return
     
     moveLen = len(boards[room]["board"].move_stack)
-    print(username, "attempting to move in room", room, "Move length:", moveLen)
-    print   
     if not (username == boards[room]["playerW"] and moveLen%2 == 0): 
         if not (username == boards[room]["playerB"] and moveLen%2 == 1): 
-            print ("Invalid move attempt by", username, "in room", room)
-
             return
         
     
     
     boards[room]["lastMoveTime"] = time.time()
-    print("room", room)
     source = data.get("from")
     target = data.get("to")
     promotion = data.get("promotion", "")
@@ -150,7 +145,6 @@ def engineMove(room, doEmit=True):
 
 
 def addToDB(room,outcome):
-    print("Adding to database...")
     board = boards[room]["board"]
     playerW = boards[room]["playerW"]
     playerB = boards[room]["playerB"]
@@ -168,17 +162,13 @@ def addToDB(room,outcome):
 @game.route('/', methods=['POST'])
 @login_required
 def postLevel():
-    print("hi?>>??")
     data = request.form
     level = int(data.get('level', 0))
     colour = data.get('startColour', None)
     if colour == "random":
         colour = "micah" if bool(random.randint(0, 1)) else "shelby"
-    print("colour",colour)
     for i in range(65536):
-        print("checking room", i)
         if not boards[i]["inGame"]:
-            print("starting game: room", i)
             boards[i]["inGame"] = True
             boards[i]["engineLevel"] = level
             if colour == "micah" and level:
@@ -204,10 +194,8 @@ def postLevel():
 @login_required
 def start(room):
     boards[room]["lastMoveTime"] = time.time()
-    print("Starting game in room", room)
     if not boards[room].get("inGame", True): # Check if the game is already in progress and if not redirects to index or else it will glitch
         return redirect(url_for('main.index'))
-    print("TIME", time.time())
     board = boards[room]["board"]
         
     username = current_user.username 
