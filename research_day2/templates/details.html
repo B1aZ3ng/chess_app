@@ -1,8 +1,0 @@
-{% extends 'base.html' %}
-{% block content %}
-    <h1>{{ data["Name"] }}</h1>
-    {% for key, value in data.items() %}
-    <dt>{{ key }}</dt>
-    <dd>{{ value}} </dd>
-    {% endfor %}
-{% endblock content %}
