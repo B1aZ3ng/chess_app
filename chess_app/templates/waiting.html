@@ -8,7 +8,7 @@
   <script>
     console.log("Waiting for opponent...");
     const poll = setInterval(() => {
-      fetch("/check_match")
+      fetch("/game/check_match")
         .then(res => res.json())
         .then(data => {
           if (data.found) {
@@ -16,7 +16,7 @@
             window.location.href = `/game/${data.room}`;
           }
         });
-    }, 2000);
+    }, 100);
   </script>
 </body>
 </html>

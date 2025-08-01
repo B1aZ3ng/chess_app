@@ -25,4 +25,7 @@
     </div>
     
 </form>
+<form method="post" action="{{ url_for('game.startGame') }}">
+    <input type="submit" value="Find Opponent" class="btn btn-primary">
+</form>
 {% endblock content %}

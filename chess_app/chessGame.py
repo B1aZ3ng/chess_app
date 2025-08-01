@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, jsonify, redirect, url_for,current_app
+from flask import Blueprint, request, render_template, jsonify, redirect, url_for,current_app,session
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename    
 from flask_socketio import emit, join_room
@@ -10,7 +10,8 @@ from chess_app.models import ChessGame
 import time
 from flask_apscheduler import APScheduler # Scheduler for periodic tasks basically cleaning up boards
 import random
-
+waiting_player = None
+waiting_room = None
 import sys
 sys.stdout.flush()
 game = Blueprint("game", __name__, url_prefix="/game")
@@ -243,3 +244,47 @@ def cleanBoards():
                 addToDB(i, outcome)
 
 
+@game.post("/startGame")
+@login_required
+def startGame():
+    global waiting_player
+    username = current_user.username
+
+    for room in range(65536):
+        if not boards[room]["inGame"]:
+            break
+    else:
+        return "No rooms available", 503
+
+    if waiting_player:
+        # Match found
+        opponent = waiting_player
+        waiting_player = None
+
+        # Random side assignment
+        white, black = (username, opponent) if random.choice([True, False]) else (opponent, username)
+
+        boards[room]["playerW"] = white
+        boards[room]["playerB"] = black
+        boards[room]["inGame"] = True
+        boards[room]["engineLevel"] = None
+        boards[room]["lastMoveTime"] = time.time()
+
+        # Inform both players using session or other means
+        if username == white:
+            session['room'] = room
+        return redirect(url_for('game.start', room=room))
+    else:
+        # No opponent yet
+        waiting_player = username
+        return render_template("waiting.html")  # A template that polls or waits for matchmaking
+
+@game.get("/check_match")
+@login_required
+def check_match():
+    username = current_user.username
+    for room in range(65536):
+        if boards[room]["playerW"] == username or boards[room]["playerB"] == username:
+            if boards[room]["inGame"]:
+                return jsonify({"found": True, "room": room})
+    return jsonify({"found": False})

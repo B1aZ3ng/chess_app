@@ -3,7 +3,7 @@
 from flask import Blueprint, abort, current_app, render_template, request, session, redirect,url_for
 from flask_login import login_required,current_user
 from chess_app.logic import pastGames
-
+from flask_socketio import emit
 main = Blueprint("main", __name__, url_prefix="/")
 
 
@@ -13,9 +13,10 @@ def index():
     return render_template("startGame.html")
     
 
-@main.post("/startGame")
-def startGame():
-    return "hi, idk what this does or will do"
+
+
+
+
 
                                                     
 @main.get("/profile")
