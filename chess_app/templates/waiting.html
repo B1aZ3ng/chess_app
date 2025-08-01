@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Waiting for Opponent</title>
+</head>
+<body>
+  <h3>Waiting for an opponent...</h3>
+  <script>
+    console.log("Waiting for opponent...");
+    const poll = setInterval(() => {
+      fetch("/check_match")
+        .then(res => res.json())
+        .then(data => {
+          if (data.found) {
+            clearInterval(poll);
+            window.location.href = `/game/${data.room}`;
+          }
+        });
+    }, 2000);
+  </script>
+</body>
+</html>

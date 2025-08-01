@@ -125,7 +125,7 @@ def socket_move(data):
     else:
         emit('invalid', {'msg': 'Illegal move'}, room=room)
 
-def engineMove(room):
+def engineMove(room, doEmit=True):
     engineLevel = boards[room].get("engineLevel", None)
     board = boards[room]["board"]
     engine.set_skill_level(engineLevel)
@@ -134,12 +134,12 @@ def engineMove(room):
     engine_move = chesslib.Move.from_uci(engine_move_uci)
     if engine_move in board.legal_moves:
         boards[room]["board"].push(engine_move)
-    
-    emit('move', {
-        'fen': board.fen(),
-        'move': engine_move_uci,
-        'by': 'engine'
-    }, room=room)
+    if doEmit:
+        emit('move', {
+            'fen': board.fen(),
+            'move': engine_move_uci,
+            'by': 'engine'
+        }, room=room)
 
 
 def addToDB(room,outcome):
@@ -159,7 +159,7 @@ def addToDB(room,outcome):
     db.session.commit()
 
 @game.route('/', methods=['POST'])
-#@login_required
+@login_required
 def postLevel():
     print("hi?>>??")
     data = request.form
@@ -174,26 +174,27 @@ def postLevel():
             print("starting game: room", i)
             boards[i]["inGame"] = True
             boards[i]["engineLevel"] = level
-            if colour == "micah" and not level:
+            if colour == "micah" and level:
                 if current_user.is_authenticated:
                     boards[i]["playerW"] = current_user.username
                 else: 
                     boards[i]["playerW"] = "Guest"
                 boards[i]["playerB"] = None
-            elif colour == "shelby" and not level:
+            elif colour == "shelby" and level:
                 if current_user.is_authenticated:
                     boards[i]["playerB"] = current_user.username
                 else: 
                     boards[i]["playerB"] = "Guest"
                 boards[i]["playerW"] = None
-                
-            
+                engineMove(i,doEmit=False)
+
             return redirect(url_for('game.start', room=i))
 
     return "No available room", 503
 
 
 @game.route('/<int:room>')
+@login_required
 def start(room):
     boards[room]["lastMoveTime"] = time.time()
     print("Starting game in room", room)
@@ -201,15 +202,21 @@ def start(room):
         return redirect(url_for('main.index'))
     print("TIME", time.time())
     board = boards[room]["board"]
-    if current_user.is_authenticated:
-        username = current_user.username 
+        
+    username = current_user.username 
+    if boards[room]["playerW"] == username:
+        colour = "micah"
+    elif boards[room]["playerB"] == username:
+        colour = "shelby"
     else:
-        username = "Guest"
+        colour = None
     return render_template(
         'chessboard.html',
         username=username   ,
         room=room,
-        board=board.fen()
+        board=board.fen(),
+        colour=colour,
+        
     )
 
 

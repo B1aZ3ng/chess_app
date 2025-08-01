@@ -35,7 +35,8 @@
     position: 'start',
     pieceTheme: '/static/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
     draggable: true,
-    onDrop: onDrop
+    onDrop: onDrop,
+    orientation: '{{ colour }}' === 'shelby' ? 'black' : 'white'
   });
 
   socket.emit('join', { room: room, username: username });
